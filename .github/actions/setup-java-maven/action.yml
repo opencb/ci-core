@@ -1,0 +1,26 @@
+name: 'Setup Java and Maven'
+description: 'Composite action to set up Java and Maven environment for OpenCB/Xetabase projects'
+
+# TODO: Define inputs for Java version, Maven version, cache configuration, etc.
+# inputs:
+#   java-version:
+#     description: 'Java version to set up'
+#     required: false
+#     default: '11'
+
+# TODO: Define outputs if needed
+# outputs:
+#   java-version:
+#     description: 'Installed Java version'
+#     value: ${{ steps.setup.outputs.java-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    # TODO: Add steps to set up Java
+    # TODO: Add steps to set up Maven
+    # TODO: Add caching for Maven dependencies
+    # TODO: Configure Maven settings if needed
+    - name: Placeholder
+      shell: bash
+      run: echo "Setup Java and Maven action - to be implemented"
