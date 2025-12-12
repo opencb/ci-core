@@ -73,7 +73,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ inputs.storage_hadoop }}-${{ steps.clone_dependencies.outputs.dependencies_sha }}
+        key: ${{ runner.os }}-maven-${{ inputs.storage_hadoop }}-${{ steps.clone_dependencies.outputs.dependencies_sha || github.sha }}
         restore-keys: |
           ${{ runner.os }}-maven-${{ inputs.storage_hadoop }}-
         ## Force cache hit to avoid analyzing with incomplete dependencies
