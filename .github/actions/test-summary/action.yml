@@ -1,0 +1,26 @@
+name: 'Test Summary'
+description: 'Composite action to generate and publish test summaries for OpenCB/Xetabase projects'
+
+# TODO: Define inputs for test results paths, formats, etc.
+# inputs:
+#   test-results-path:
+#     description: 'Path to test results'
+#     required: false
+#     default: '**/target/surefire-reports/*.xml'
+
+# TODO: Define outputs if needed
+# outputs:
+#   summary:
+#     description: 'Test summary'
+#     value: ${{ steps.summary.outputs.summary }}
+
+runs:
+  using: 'composite'
+  steps:
+    # TODO: Add steps to collect test results
+    # TODO: Add steps to parse test results
+    # TODO: Add steps to generate summary
+    # TODO: Add steps to publish summary to GitHub Actions UI
+    - name: Placeholder
+      shell: bash
+      run: echo "Test summary action - to be implemented"
