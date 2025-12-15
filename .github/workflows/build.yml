@@ -74,5 +74,6 @@ jobs:
             echo ""
             echo "- Build version: \`${{ steps.get_project_version.outputs.version}}\`"
             echo "- Hadoop flavour: \`${{ inputs.storage_hadoop }}\`"
+            echo "- Repository: \`$GITHUB_REPOSITORY\`"
+            echo "- Branch: \`$GITHUB_REF_NAME\`"
           } >> "$GITHUB_STEP_SUMMARY"
-
