@@ -65,6 +65,8 @@ jobs:
           dependency_repos: ${{ inputs.dependency_repos }}
           needs_hadoop_preparation: ${{ inputs.needs_hadoop_preparation }}
           deploy_maven: ${{ inputs.deploy_maven }}
+          maven_gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          maven_gpg_passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Maven Build (skip tests)
         if: ${{ !inputs.deploy_maven }}
