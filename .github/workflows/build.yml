@@ -79,7 +79,6 @@ jobs:
       - name: Maven Build (skip tests)
         if: ${{ !inputs.deploy_maven }}
         run: mvn -T 2 clean install -DskipTests ${{ inputs.maven_opts }} --no-transfer-progress
-
       - name: Maven Deploy (skip tests, deploy to Maven Central y GitHub Packages)
         if: ${{ inputs.deploy_maven }}
         run: mvn -T 2 clean deploy -DskipTests -Pdeploy-maven,deploy-github ${{ inputs.maven_opts }} --no-transfer-progress
@@ -98,7 +97,6 @@ jobs:
 
       - name: Get project version
         id: get_project_version
-
         # This step extracts the Maven project version and exposes it as an output.
         run: |
           echo "version=$(mvn help:evaluate -q -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"

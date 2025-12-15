@@ -1,0 +1,91 @@
+name: "Prepare OpenCGA Enterprise"
+description: "Checkout enterprise, resolve OpenCGA ref, optionally clone java-common-libs/biodata and compute dependencies_sha"
+
+inputs:
+  enterprise_ref:
+    description: "Branch, tag or SHA of opencga-enterprise to checkout"
+    required: true
+  clone_dependencies:
+    description: "Clone java-common-libs and biodata on the same branch for SNAPSHOT builds"
+    required: false
+    default: "true"
+
+outputs:
+  enterprise_version:
+    description: "project.version from opencga-enterprise"
+    value: ${{ steps.project_version.outputs.enterprise_version }}
+  is_release:
+    description: "true if project.version is a release (no SNAPSHOT)"
+    value: ${{ steps.project_version.outputs.is_release }}
+  opencga_branch:
+    description: "Resolved OpenCGA branch, tag or ref"
+    value: ${{ steps.opencga_branch.outputs.opencga_branch }}
+  dependencies_sha:
+    description: "SHA representing the combination of OpenCGA/java-common-libs/biodata commits"
+    value: ${{ steps.dependencies_sha.outputs.dependencies_sha }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout opencga-enterprise
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.enterprise_ref }}
+        repository: zetta-genomics/opencga-enterprise
+        token: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
+        path: opencga-enterprise
+        fetch-depth: 10
+    - id: project_version
+      name: Read project.version and determine release flag
+      shell: bash
+      run: |
+        version=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate)
+        echo "enterprise_version=$version" >> "$GITHUB_OUTPUT"
+        echo "enterprise_version=$version" >> "$GITHUB_OUTPUT"
+        if [[ "$version" == *SNAPSHOT ]]; then
+          echo "is_release=false" >> "$GITHUB_OUTPUT"         
+        else
+          echo "is_release=true" >> "$GITHUB_OUTPUT"
+        fi
+    - id: opencga_branch
+      name: Resolve OpenCGA branch or tag from opencga.version and branch
+      shell: bash
+      run: |
+        if [ ! -f "./.github/workflows/scripts/opencga_branch.sh" ]; then
+          echo "ERROR: .github/workflows/scripts/opencga_branch.sh not found" >&2
+          exit 1
+        fi
+        chmod +x ./.github/workflows/scripts/opencga_branch.sh
+        branch=$(
+          ./.github/workflows/scripts/opencga_branch.sh \
+            "${{ steps.project_version.outputs.is_release }}"
+        )
+        echo "opencga_branch=$branch" >> "$GITHUB_OUTPUT"
+    - name: Checkout OpenCGA
+      uses: actions/checkout@v4
+      with:
+        repository: opencb/opencga
+        ref: ${{ steps.opencga_branch.outputs.opencga_branch }}
+        path: opencga-home
+        fetch-depth: 10
+    - id: dependencies_sha
+      name: Compute dependencies SHA for OpenCGA/java-common-libs/biodata
+      shell: bash
+      run: |
+        base_sha="${GITHUB_SHA}"
+        if [[ "${{ inputs.clone_dependencies }}" == "true" && "${{ steps.project_version.outputs.is_release }}" == "false" ]]; then
+          if [ -f "./.github/workflows/scripts/get_same_branch.sh" ]; then
+            echo "::group::Clone java-common-libs and biodata and compute dependencies SHA"
+            chmod +x ./.github/workflows/scripts/get_same_branch.sh
+
+            export DEPENDENCIES_SHA="$base_sha"
+            export WORKSPACE="${WORKSPACE:-/home/runner/work}"
+
+            ./.github/workflows/scripts/get_same_branch.sh "${{ inputs.enterprise_ref }}"
+            echo "::endgroup::"
+            exit 0
+          else
+            echo "get_same_branch.sh not found, skipping dependency cloning."
+          fi
+        fi
+        echo "dependencies_sha=$base_sha" >> "$GITHUB_OUTPUT"

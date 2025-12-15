@@ -1,0 +1,100 @@
+name: TEST Xetabase and publish report workflow
+
+on:
+  workflow_call:
+    inputs:
+      task:
+        type: string
+        required: true
+      branch:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      task:
+        type: string
+        description: 'Task ID to be tested.'
+        required: true
+      branch:
+        type: string
+        description: 'Branch of opencga-enterprise to be tested and built.'
+        required: true
+
+jobs:
+  test:
+    name: Execute JUnit and Jacoco tests
+    runs-on: ${{ vars.UBUNTU_VERSION }}
+    steps:
+      - name: Retrieve secrets from Keeper
+        id: ksecrets
+        uses: Keeper-Security/ksm-action@master
+        with:
+          keeper-secret-config: ${{ secrets.KEEPER_SM_GH_OPENCB }}
+          secrets: |
+            AZURE_KUBE_CONFIG/field/Secret Value > env:AZURE_KUBE_CONFIG
+            DOCKER_HUB_USER/field/Secret Value > env:DOCKER_HUB_USER
+            DOCKER_HUB_PASSWORD/field/Secret Value > env:DOCKER_HUB_PASSWORD
+            SSH_TESTING_SERVER_HOST/field/Secret Value > env:SSH_HOST
+            SSH_TESTING_SERVER_PORT/field/Secret Value > env:SSH_PORT
+            SSH_TESTING_SERVER_USER/field/Secret Value > env:SSH_USER
+            SSH_TESTING_SERVER_PASSWORD/field/Secret Value > env:SSH_PASS
+      - name: Prepare enterprise, OpenCGA and dependencies
+        id: prepare
+        uses: ./.github/actions/prepare-opencga-enterprise
+        with:
+          enterprise_ref: ${{ inputs.branch != '' && inputs.branch || github.ref_name }}
+          clone_dependencies: "true"
+      - name: Set up Java and Maven cache
+        # Uses dependencies_sha to make the cache key sensitive to dependency commits
+        uses: ./.github/actions/setup-java-maven-cache
+        with:
+          storage_hadoop: ${{ inputs.storage_hadoop }}
+          dependencies_sha: ${{ steps.prepare.outputs.dependencies_sha }}
+
+      - name: Install Samtools
+        run: sudo apt-get install samtools python3-deeptools
+      - name: Start MongoDB v6.0
+        uses: supercharge/mongodb-github-action@1.8.0
+        with:
+          mongodb-version: 6.0
+          mongodb-replica-set: rs-test
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+      - name: Add SSH Host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ env.SSH_PORT }} ${{ env.SSH_HOST }} >> ~/.ssh/known_hosts
+        env:
+          SSH_HOST: ${{ env.SSH_HOST }}
+          SSH_PORT: ${{ env.SSH_PORT }}
+      - name: Run all OpenCB Junit tests, ie. java-common-libs, biodata, opencga and opencga-enterprise
+        run: |
+          cd opencga-enterprise
+          ln -s ../opencga opencga-home
+          ./build.sh --test --test-level runShortTests --prepare-branches --test-save-reports --task ${{ inputs.task }} --storage-hadoop ${{ vars.HADOOP_FLAVOUR }} --prepare-hadoop --github
+        env:
+          THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
+      - name: Upload reports results to Github
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-test
+          path: ./opencga-enterprise/reports/
+          if-no-files-found: error
+      - name: Upload log
+        uses: actions/upload-artifact@v4
+        ## Skip cancelled()
+        ## https://docs.github.com/en/actions/learn-github-actions/expressions#cancelled
+        if: success() || failure()
+        with:
+          name: build-log
+          path: |
+            ./opencga-enterprise/build.log
+            ./opencga-enterprise/reports/*.log.gz
+          if-no-files-found: error
+      - name: Log summary
+        run: |
+          cat ./opencga-enterprise/build.log | tee -a $GITHUB_STEP_SUMMARY
+          
+          
+
+

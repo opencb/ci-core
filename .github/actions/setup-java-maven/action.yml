@@ -5,7 +5,7 @@ inputs:
   java_version:
     description: "Java version to use"
     required: false
-    default: "11"
+    default: "8"
   storage_hadoop:
     description: "Hadoop flavour, used as part of the Maven cache key"
     required: false
