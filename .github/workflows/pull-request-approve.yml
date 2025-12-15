@@ -71,4 +71,3 @@ jobs:
         with:
           branch: ${{ steps.compute_branch.outputs.branch }}
           task: ${{ inputs.head_ref }}
-        secrets: inherit
