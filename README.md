@@ -59,6 +59,3 @@ Generates a Markdown summary of Surefire test results and writes it to GITHUB_ST
 - `total_skipped`: Total number of skipped tests
 - `total_tests`: Total number of tests
 
-## Migration
-
-See [MIGRATION_INSTRUCTIONS.md](MIGRATION_INSTRUCTIONS.md) for details on migrating actions from other repositories.
