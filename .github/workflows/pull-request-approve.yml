@@ -52,8 +52,9 @@ jobs:
         working-directory: triggering-repo
         run: |
           pwd
+          ls -la     
           ls -la ../
-          ls -la          
+     
           chmod +x ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh
           branch=$( ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.target_branch }}" "${{ inputs.head_ref }}" )
           echo "branch=$branch" | tee -a $GITHUB_STEP_SUMMARY
@@ -66,7 +67,8 @@ jobs:
           path: opencga-enterprise
           token: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
       - name: Call test-xetabase workflow with calculated branch
-        uses: ../ci-core/.github/workflows/test-xetabase.yml
+        uses: opencb/ci-core/.github/workflows/test-xetabase.yml@main
         with:
           branch: ${{ steps.compute_branch.outputs.branch }}
           task: ${{ inputs.head_ref }}
+        secrets: inherit
