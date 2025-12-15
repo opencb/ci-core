@@ -22,6 +22,10 @@ inputs:
     description: "If true, prepare Hadoop environment after setting up Java and Maven cache"
     required: false
     default: false
+  deploy_maven:
+    description: "If true, configure Java and Maven for deploy (GPG, Nexus, etc)"
+    required: false
+    default: false
 
 outputs:
   dependencies_sha:
@@ -35,12 +39,23 @@ runs:
   using: "composite"
   steps:
     - name: Set up JDK
-      # This step installs the requested JDK version for the job
+      if: ${{ inputs.deploy_maven != 'true' }}
       uses: actions/setup-java@v4
       with:
         distribution: "temurin"
         java-version: ${{ inputs.java_version }}
-
+    - name: Set up JDK for deploy
+      if: ${{ inputs.deploy_maven == 'true' }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: "temurin"
+        java-version: ${{ inputs.java_version }}
+        cache: 'maven'
+        server-id: ossrh
+        server-username: MAVEN_NEXUS_USER
+        server-password: MAVEN_NEXUS_PASSWORD
+        gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
     - name: Clone dependencies and compute dependencies_sha
       id: clone_dependencies
       if: ${{ inputs.dependency_repos != '' }}

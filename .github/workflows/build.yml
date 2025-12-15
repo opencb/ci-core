@@ -31,6 +31,20 @@ on:
         description: "If true, prepare Hadoop environment after setting up Java and Maven cache"
         required: false
         default: false
+      deploy_maven:
+        type: boolean
+        description: "If true, deploy to Maven repository after building"
+        required: false
+        default: false
+    secrets:
+      MAVEN_GPG_PASSPHRASE:
+        required: false
+      MAVEN_GPG_PRIVATE_KEY:
+        required: false
+      MAVEN_USER_TOKEN:
+        required: false
+      MAVEN_PASSWORD_TOKEN:
+        required: false
 
 jobs:
   build:
@@ -42,19 +56,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java, dependencies and Maven cache
-        # This step sets up JDK, clones and optionally compiles dependencies,
-        # and configures the Maven cache for the whole job.
+        # Este paso ahora configura Java para build o deploy según inputs.deploy_maven
         id: setup_java_maven
         uses: opencb/ci-core/.github/actions/setup-java-maven@main
         with:
           java_version: ${{ inputs.java_version }}
           storage_hadoop: ${{ inputs.hadoop_flavour || vars.HADOOP_FLAVOUR }}
           dependency_repos: ${{ inputs.dependency_repos }}
+          needs_hadoop_preparation: ${{ inputs.needs_hadoop_preparation }}
+          deploy_maven: ${{ inputs.deploy_maven }}
 
       - name: Maven Build (skip tests)
-        # This step performs the main Maven build using the configured options.
+        if: ${{ !inputs.deploy_maven }}
         run: mvn -T 2 clean install -DskipTests ${{ inputs.maven_opts }} --no-transfer-progress
 
+      - name: Maven Deploy (skip tests, deploy to Maven Central y GitHub Packages)
+        if: ${{ inputs.deploy_maven }}
+        run: mvn -T 2 clean deploy -DskipTests -Pdeploy-maven,deploy-github ${{ inputs.maven_opts }} --no-transfer-progress
+        env:
+          MAVEN_NEXUS_USER: ${{ secrets.MAVEN_USER_TOKEN }}
+          MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_PASSWORD_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload build artifacts
         # This step uploads the build artifacts if requested by the caller.
         if: ${{ inputs.upload_artifact == true }}
