@@ -62,7 +62,3 @@ jobs:
         with:
           branch: ${{ steps.compute_branch.outputs.branch }}
           task: ${{ inputs.head_ref }}
-        secrets:
-          ZETTA_REPO_ACCESS_TOKEN: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
-          THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
-          KEEPER_SM_GH_OPENCB: ${{ secrets.KEEPER_SM_GH_OPENCB }}
