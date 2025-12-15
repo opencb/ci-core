@@ -26,6 +26,11 @@ on:
         type: string
         required: false
         default: ""
+      needs_hadoop_preparation:
+        type: boolean
+        description: "If true, prepare Hadoop environment after setting up Java and Maven cache"
+        required: false
+        default: false
 
 jobs:
   build:

@@ -18,6 +18,11 @@ inputs:
     description: "If true, fail the job when the Maven cache is not found for the current dependencies_sha"
     required: false
     default: "false"
+  needs_hadoop_preparation:
+    description: "If true, prepare Hadoop environment after setting up Java and Maven cache"
+    required: false
+    default: false
+
 outputs:
   dependencies_sha:
     description: "Hash that represents dependency commits (OpenCGA/java-common-libs/biodata/cellbase, etc.)"
@@ -96,7 +101,13 @@ runs:
         else
           echo "compile_same_branch.sh script not found. Skipping dependency compilation."
         fi
-
+    - name: Prepare Hadoop profile
+      if: ${{ inputs.needs_hadoop_preparation == true }}
+      run: |
+        chmod +x ./.github/workflows/scripts/prepare_hadoop.sh
+        ./.github/workflows/scripts/prepare_hadoop.sh --hadoop-flavour "${{ inputs.storage_hadoop || vars.HADOOP_FLAVOUR }}"
+      env:
+        THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
     - name: Cache summary
       # This step writes a small summary into the GitHub job summary, so it is
       # easy to inspect which dependencies_sha and cache key were used.
@@ -107,6 +118,7 @@ runs:
           echo ""
           echo "- Java version: \`${{ inputs.java_version }}\`"
           echo "- Dependencies sha: \`${{ steps.clone_dependencies.outputs.dependencies_sha || 'No dependencies' }}\`"
+          echo "- Prepare Hadoop environment: \`${{ inputs.needs_hadoop_preparation }}\`"
           echo "- Maven cache key: \`${{ runner.os }}-maven-${{ inputs.storage_hadoop }}-${{ steps.clone_dependencies.outputs.dependencies_sha }}\`"
           echo "- Maven cache hit: \`${{ steps.maven_cache.outputs.cache-hit || 'false' }}\`"
         } >> "$GITHUB_STEP_SUMMARY"
