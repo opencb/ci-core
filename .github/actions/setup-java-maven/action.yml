@@ -131,7 +131,7 @@ runs:
         chmod +x ./.github/workflows/scripts/prepare_hadoop.sh
         ./.github/workflows/scripts/prepare_hadoop.sh --hadoop-flavour "${{ inputs.storage_hadoop }}"
       env:
-        THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
+        THIRDPARTY_READ_TOKEN: ${{ env.THIRDPARTY_READ_TOKEN }}
     - name: Cache summary
       # This step writes a small summary into the GitHub job summary, so it is
       # easy to inspect which dependencies_sha and cache key were used.

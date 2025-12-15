@@ -45,6 +45,8 @@ on:
         required: false
       MAVEN_PASSWORD_TOKEN:
         required: false
+      THIRDPARTY_READ_TOKEN:
+        required: false
 
 jobs:
   build:
@@ -67,6 +69,8 @@ jobs:
           deploy_maven: ${{ inputs.deploy_maven }}
           maven_gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           maven_gpg_passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        env:
+          THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
 
       - name: Maven Build (skip tests)
         if: ${{ !inputs.deploy_maven }}
