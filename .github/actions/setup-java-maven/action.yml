@@ -26,11 +26,19 @@ inputs:
     description: "If true, configure Java and Maven for deploy (GPG, Nexus, etc)"
     required: false
     default: "false"
-  maven_gpg_private_key:
-    description: "GPG private key for Maven deploy (base64)"
+  server-username:
+    description: "Username for Maven deploy (Nexus)"
     required: false
-    default: ""
-  maven_gpg_passphrase:
+    default: ""  # env variable for username in deploy
+  server-password:
+    description: "Password/token for Maven deploy (Nexus)"
+    required: false
+    default: ""  # env variable for token in deploy
+  gpg-private-key:
+    description: "GPG private key for Maven deploy"
+    required: false
+    default: ""   # Value of the GPG private key to import
+  gpg-passphrase:
     description: "GPG passphrase for Maven deploy"
     required: false
     default: ""
@@ -72,10 +80,10 @@ runs:
         java-version: ${{ inputs.java_version }}
         cache: 'maven'
         server-id: ossrh
-        server-username: MAVEN_NEXUS_USER
-        server-password: MAVEN_NEXUS_PASSWORD
-        gpg-private-key: ${{ inputs.maven_gpg_private_key }}
-        gpg-passphrase: ${{ inputs.maven_gpg_passphrase }}
+        server-username: ${{ inputs.server-username }}
+        server-password: ${{ inputs.server-password }}
+        gpg-private-key: ${{ inputs.gpg-private-key }}
+        gpg-passphrase: ${{ inputs.gpg-passphrase }}
     - name: Clone dependencies and compute dependencies_sha
       id: clone_dependencies
       if: ${{ inputs.dependency_repos != '' }}
