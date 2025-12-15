@@ -37,7 +37,7 @@ jobs:
         shell: bash
         working-directory: triggering-repo
         run: |
-          artifactId=$(xmllint --xpath '/*[local-name()="project"]/*[local-name()="artifactId"]/text()' pom.xml)
+          artifactId=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.6.0:exec)
           echo "artifactId=$artifactId" >> "$GITHUB_OUTPUT"
       - name: Compute opencga-enterprise branch
         id: compute_branch
