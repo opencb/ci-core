@@ -39,6 +39,11 @@ jobs:
         run: |
           artifactId=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.6.0:exec)
           echo "artifactId=$artifactId" >> "$GITHUB_OUTPUT"
+      - name: Checkout ci-core (scripts)
+        uses: actions/checkout@v4
+        with:
+          repository: opencb/ci-core
+          path: ci-core
       - name: Compute opencga-enterprise branch
         id: compute_branch
         env:
@@ -46,8 +51,11 @@ jobs:
         shell: bash
         working-directory: triggering-repo
         run: |
-          chmod +x ../.github/workflows/scripts/get_opencga_enterprise_branch.sh
-          branch=$( ../.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.target_branch }}" "${{ inputs.head_ref }}" )
+          pwd
+          ls -la ../
+          ls -la          
+          chmod +x ../../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh
+          branch=$( ../../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.target_branch }}" "${{ inputs.head_ref }}" )
           echo "branch=$branch" | tee -a $GITHUB_STEP_SUMMARY
           echo "branch=$branch" >> $GITHUB_OUTPUT
       - name: Checkout opencga-enterprise
