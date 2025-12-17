@@ -15,6 +15,17 @@ jobs:
     name: Execute JUnit and Jacoco tests
     runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
+      # Checkout ci-core en la raíz para que las acciones locales estén siempre disponibles
+      - name: Checkout ci-core (main)
+        uses: actions/checkout@v4
+        with:
+          repository: opencb/ci-core
+          path: .
+      # Checkout el repo que dispara el workflow en workspace/
+      - name: Checkout triggering repo
+        uses: actions/checkout@v4
+        with:
+          path: workspace
       - name: Retrieve secrets from Keeper
         id: ksecrets
         uses: Keeper-Security/ksm-action@master
@@ -84,7 +95,3 @@ jobs:
       - name: Log summary
         run: |
           cat ./opencga-enterprise/build.log | tee -a $GITHUB_STEP_SUMMARY
-          
-          
-
-
