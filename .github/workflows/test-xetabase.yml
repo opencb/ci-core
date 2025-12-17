@@ -72,7 +72,7 @@ jobs:
           SSH_PORT: ${{ env.SSH_PORT }}
       - name: Create opencga-home symlink
         run: |
-          ln -s workspace/opencga workspace/opencga-enterprise/opencga-home
+          ln -s ../opencga workspace/opencga-enterprise/opencga-home
       - name: Run all OpenCB Junit tests, ie. java-common-libs, biodata, opencga and opencga-enterprise
         run: |
           cd workspace/opencga-enterprise
