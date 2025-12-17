@@ -3,7 +3,7 @@
 IS_RELEASE=$1
 
 ## Navigate to the root folder where the pom.xml is
-cd "$(dirname "$0")"/../../../ || exit 2
+cd workspace/opencga-enterprise || exit 2
 
 ## Read the opencga version from the pom.xml
 BUILD_VERSION=$(mvn help:evaluate -Dexpression=opencga.version -q -DforceStdout)
