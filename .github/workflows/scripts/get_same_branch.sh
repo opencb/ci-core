@@ -4,7 +4,7 @@ BRANCH_NAME=$1
 ## Comma separated list of repos to checkout
 REPOS=$2
 DEPENDENCIES_SHA=${DEPENDENCIES_SHA:-""}
-WORKSPACE=${WORKSPACE:-/home/runner/work/}
+WORKSPACE=${WORKSPACE:-workspace}
 
 if [[ -z "$BRANCH_NAME"  ]]; then
   echo "The first parameter is mandatory and must be a valid branch name."

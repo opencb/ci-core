@@ -49,10 +49,10 @@ jobs:
           ZETTA_REPO_ACCESS_TOKEN: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
       - name: Set up Java and Maven cache
         # Uses dependencies_sha to make the cache key sensitive to dependency commits
-        uses: ./.github/actions/setup-java-maven-cache
+        uses: ./.github/actions/setup-java-maven
         with:
           storage_hadoop: ${{ inputs.storage_hadoop }}
-          dependencies_sha: ${{ steps.prepare.outputs.dependencies_sha }}
+          java_version: "8"
 
       - name: Install Samtools
         run: sudo apt-get install samtools python3-deeptools
@@ -70,10 +70,12 @@ jobs:
         env:
           SSH_HOST: ${{ env.SSH_HOST }}
           SSH_PORT: ${{ env.SSH_PORT }}
+      - name: Create opencga-home symlink
+        run: |
+          ln -s workspace/opencga workspace/opencga-enterprise/opencga-home
       - name: Run all OpenCB Junit tests, ie. java-common-libs, biodata, opencga and opencga-enterprise
         run: |
           cd workspace/opencga-enterprise
-          ln -s ../opencga opencga-home
           ./build.sh --test --test-level runShortTests --prepare-branches --test-save-reports --task ${{ inputs.task }} --storage-hadoop ${{ vars.HADOOP_FLAVOUR }} --prepare-hadoop --github
         env:
           THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
