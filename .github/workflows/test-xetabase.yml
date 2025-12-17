@@ -75,7 +75,7 @@ jobs:
           ln -s "$GITHUB_WORKSPACE/workspace/opencga" "$GITHUB_WORKSPACE/workspace/opencga-enterprise/opencga-home"
       - name: Run all OpenCB Junit tests, ie. java-common-libs, biodata, opencga and opencga-enterprise
         run: |
-          cd workspace/opencga-enterprise
+          cd "$GITHUB_WORKSPACE/workspace/opencga-enterprise"
           ./build.sh --test --test-level runShortTests --prepare-branches --test-save-reports --task ${{ inputs.task }} --storage-hadoop ${{ vars.HADOOP_FLAVOUR }} --prepare-hadoop --github
         env:
           THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: report-test
-          path: workspace/opencga-enterprise/reports/
+          path: ${{ github.workspace }}/workspace/opencga-enterprise/reports/
           if-no-files-found: error
       - name: Upload log
         uses: actions/upload-artifact@v4
@@ -91,9 +91,9 @@ jobs:
         with:
           name: build-log
           path: |
-            workspace/opencga-enterprise/build.log
-            workspace/opencga-enterprise/reports/*.log.gz
+            ${{ github.workspace }}/workspace/opencga-enterprise/build.log
+            ${{ github.workspace }}/workspace/opencga-enterprise/reports/*.log.gz
           if-no-files-found: error
       - name: Log summary
         run: |
-          cat workspace/opencga-enterprise/build.log | tee -a $GITHUB_STEP_SUMMARY
+          cat "$GITHUB_WORKSPACE/workspace/opencga-enterprise/build.log" | tee -a $GITHUB_STEP_SUMMARY
