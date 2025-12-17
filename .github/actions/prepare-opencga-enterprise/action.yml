@@ -30,10 +30,10 @@ runs:
     - name: Checkout opencga-enterprise
       uses: actions/checkout@v4
       with:
-        ref: ${{ inputs.enterprise_ref }}
         repository: zetta-genomics/opencga-enterprise
-        token: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
-        path: opencga-enterprise
+        ref: ${{ inputs.enterprise_ref }}
+        path: workspace/opencga-enterprise
+        token: ${{ env.ZETTA_REPO_ACCESS_TOKEN }}
         fetch-depth: 10
     - id: project_version
       name: Read project.version and determine release flag
