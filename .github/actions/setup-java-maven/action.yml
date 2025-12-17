@@ -103,6 +103,7 @@ runs:
           # Initialize DEPENDENCIES_SHA with the current repo SHA so that
           # main project changes also affect the final cache key.
           export DEPENDENCIES_SHA="${{ github.sha }}"
+          export WORKSPACE="workspace"
 
           ci-core/.github/workflows/scripts/get_same_branch.sh \
             "${{ github.ref_name }}" \
@@ -140,6 +141,7 @@ runs:
 
         if [ -f "ci-core/.github/workflows/scripts/compile_same_branch.sh" ]; then
           chmod +x ci-core/.github/workflows/scripts/compile_same_branch.sh
+          export WORKSPACE="workspace"
           ci-core/.github/workflows/scripts/compile_same_branch.sh "${{ inputs.dependency_repos }}"
         else
           echo "compile_same_branch.sh script not found. Skipping dependency compilation."
