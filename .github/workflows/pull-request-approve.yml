@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: opencb/ci-core
-          path: .
+          path: ci-core
       # Checkout el repo que dispara el workflow en workspace/
       - name: Checkout triggering repository
         uses: actions/checkout@v4
@@ -55,8 +55,8 @@ jobs:
         shell: bash
         working-directory: workspace
         run: |
-          chmod +x ../.github/workflows/scripts/get_opencga_enterprise_branch.sh
-          branch=$( ../.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.target_branch }}" "${{ inputs.head_ref }}" )
+          chmod +x ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh
+          branch=$( ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.target_branch }}" "${{ inputs.head_ref }}" )
           echo "branch=$branch" | tee -a $GITHUB_STEP_SUMMARY
           echo "branch=$branch" >> $GITHUB_OUTPUT
 

@@ -97,15 +97,15 @@ runs:
         #   - update DEPENDENCIES_SHA in-place
         #   - finally write `dependencies_sha=<hash>` into $GITHUB_OUTPUT
 
-        if [ -f "ci-core/.github/workflows/scripts/get_same_branch.sh" ]; then
-          chmod +x ci-core/.github/workflows/scripts/get_same_branch.sh
+        if [ -f "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/get_same_branch.sh" ]; then
+          chmod +x "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/get_same_branch.sh"
 
           # Initialize DEPENDENCIES_SHA with the current repo SHA so that
           # main project changes also affect the final cache key.
           export DEPENDENCIES_SHA="${{ github.sha }}"
-          export WORKSPACE="workspace"
+          export WORKSPACE="$GITHUB_WORKSPACE/workspace"
 
-          ci-core/.github/workflows/scripts/get_same_branch.sh \
+          "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/get_same_branch.sh" \
             "${{ github.ref_name }}" \
             "${{ inputs.dependency_repos }}"
         else
@@ -139,10 +139,10 @@ runs:
         #   - run `mvn clean install -DskipTests` on each dependency
         #   - populate ~/.m2/repository with the latest built artifacts
 
-        if [ -f "ci-core/.github/workflows/scripts/compile_same_branch.sh" ]; then
-          chmod +x ci-core/.github/workflows/scripts/compile_same_branch.sh
-          export WORKSPACE="workspace"
-          ci-core/.github/workflows/scripts/compile_same_branch.sh "${{ inputs.dependency_repos }}"
+        if [ -f "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/compile_same_branch.sh" ]; then
+          chmod +x "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/compile_same_branch.sh"
+          export WORKSPACE="$GITHUB_WORKSPACE/workspace"
+          "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/compile_same_branch.sh" "${{ inputs.dependency_repos }}"
         else
           echo "compile_same_branch.sh script not found. Skipping dependency compilation."
         fi
@@ -150,8 +150,8 @@ runs:
       if: ${{ inputs.needs_hadoop_preparation == 'true' }}
       shell: bash
       run: |
-        chmod +x ci-core/.github/workflows/scripts/prepare_hadoop.sh
-        ci-core/.github/workflows/scripts/prepare_hadoop.sh --hadoop-flavour "${{ inputs.storage_hadoop }}"
+        chmod +x "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/prepare_hadoop.sh"
+        "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/prepare_hadoop.sh" --hadoop-flavour "${{ inputs.storage_hadoop }}"
       env:
         THIRDPARTY_READ_TOKEN: ${{ env.THIRDPARTY_READ_TOKEN }}
     - name: Cache summary

@@ -1,5 +1,5 @@
 
-WORKSPACE=${WORKSPACE:-workspace}
+WORKSPACE=${WORKSPACE:-"$GITHUB_WORKSPACE/workspace"}
 
 
 function compile() {
