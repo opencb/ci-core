@@ -39,6 +39,7 @@ runs:
       name: Read project.version and determine release flag
       shell: bash
       run: |
+        cd workspace/opencga-enterprise
         version=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate)
         echo "enterprise_version=$version" >> "$GITHUB_OUTPUT"
         echo "enterprise_version=$version" >> "$GITHUB_OUTPUT"
