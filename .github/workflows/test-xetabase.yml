@@ -51,7 +51,7 @@ jobs:
         # Uses dependencies_sha to make the cache key sensitive to dependency commits
         uses: ./.github/actions/setup-java-maven
         with:
-          storage_hadoop: ${{ inputs.storage_hadoop }}
+          storage_hadoop: ${{ vars.HADOOP_FLAVOUR }}
           java_version: "8"
 
       - name: Install Samtools
