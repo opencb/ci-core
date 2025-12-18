@@ -11,6 +11,12 @@ if [[ -z "$BRANCH_NAME"  ]]; then
   exit 1
 fi
 
+# Comprobar y crear el directorio de trabajo si no existe
+if [ ! -d "$WORKSPACE" ]; then
+  mkdir -p "$WORKSPACE"
+fi
+cd "$WORKSPACE"
+
 function checkout(){
   local REPO=$1
   echo "::group::Installing '$REPO' project from branch $BRANCH_NAME"

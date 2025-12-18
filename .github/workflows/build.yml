@@ -67,12 +67,10 @@ jobs:
           dependency_repos: ${{ inputs.dependency_repos }}
           needs_hadoop_preparation: ${{ inputs.needs_hadoop_preparation }}
           deploy_maven: ${{ inputs.deploy_maven }}
-          server-id: ossrh                                        # Value of the distributionManagement/repository/id field of the pom.xml
           server-username: MAVEN_NEXUS_USER                       # env variable for username in deploy
           server-password: MAVEN_NEXUS_PASSWORD                   # env variable for token in deploy
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}   # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         env:
           THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
 
