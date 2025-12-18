@@ -32,27 +32,22 @@ BRANCH="TASK-8067"  # O cualquier rama que exista
 TOKEN="${ZETTA_REPO_ACCESS_TOKEN}"
 
 if [ -z "$TOKEN" ]; then
-  echo "ERROR: ZETTA_REPO_ACCESS_TOKEN está vacío"
+  echo "ERROR: ZETTA_REPO_ACCESS_TOKEN está vacío"  >&2
   exit 1
 fi
 
-echo "Probando acceso a https://github.com/$REPO con el token..."
+echo "Probando acceso a https://github.com/$REPO con el token..."  >&2
 
 # Prueba acceso a la rama
 git ls-remote --heads "https://$TOKEN@github.com/$REPO.git" "$BRANCH"
 RESULT=$?
 
 if [ $RESULT -eq 0 ]; then
-  echo "ÉXITO: El token tiene acceso de lectura al repositorio y puede ver la rama '$BRANCH'."
+  echo "ÉXITO: El token tiene acceso de lectura al repositorio y puede ver la rama '$BRANCH'." >&2
 else
-  echo "FALLO: El token NO tiene acceso al repositorio o la rama no existe."
-  echo "Verifica que el token tenga permisos de lectura y acceso al repo."
+  echo "FALLO: El token NO tiene acceso al repositorio o la rama no existe." >&2
+  echo "Verifica que el token tenga permisos de lectura y acceso al repo." >&2
 fi
-
-
-
-
-
 
 # Helper: check if a branch exists in the remote opencga-enterprise repo
 branch_exists() {
