@@ -46,6 +46,17 @@ jobs:
         run: |
           artifactId=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.6.0:exec)
           echo "artifactId=$artifactId" >> "$GITHUB_OUTPUT"
+      - name: Check if token is present
+        run: |
+          if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
+            echo "ZETTA_REPO_ACCESS_TOKEN está vacío"
+            exit 1
+          else
+            echo "ZETTA_REPO_ACCESS_TOKEN está presente"
+          fi
+        env:
+          ZETTA_REPO_ACCESS_TOKEN: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
+
       - name: Compute opencga-enterprise branch
         id: compute_branch
         shell: bash
