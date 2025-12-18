@@ -25,6 +25,35 @@ if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
 else
   echo "ZETTA_REPO_ACCESS_TOKEN is ok (defined)" >&2
 fi
+
+# Configura estos valores:
+REPO="zetta-genomics/opencga-enterprise"
+BRANCH="TASK-8067"  # O cualquier rama que exista
+TOKEN="${ZETTA_REPO_ACCESS_TOKEN}"
+
+if [ -z "$TOKEN" ]; then
+  echo "ERROR: ZETTA_REPO_ACCESS_TOKEN está vacío"
+  exit 1
+fi
+
+echo "Probando acceso a https://github.com/$REPO con el token..."
+
+# Prueba acceso a la rama
+git ls-remote --heads "https://$TOKEN@github.com/$REPO.git" "$BRANCH"
+RESULT=$?
+
+if [ $RESULT -eq 0 ]; then
+  echo "ÉXITO: El token tiene acceso de lectura al repositorio y puede ver la rama '$BRANCH'."
+else
+  echo "FALLO: El token NO tiene acceso al repositorio o la rama no existe."
+  echo "Verifica que el token tenga permisos de lectura y acceso al repo."
+fi
+
+
+
+
+
+
 # Helper: check if a branch exists in the remote opencga-enterprise repo
 branch_exists() {
   local branch="$1"
