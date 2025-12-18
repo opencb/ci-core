@@ -23,6 +23,8 @@ head_ref="$3"
 branch_exists() {
   local branch="$1"
   REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
+  echo "DEBUG: Probing $REPO_URI for branch $branch" >&2
+  git ls-remote --heads "$REPO_URI" "$branch" >&2
   git ls-remote --heads "$REPO_URI" "$branch" | grep -q refs/heads
 }
 

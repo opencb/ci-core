@@ -54,7 +54,7 @@ jobs:
         working-directory: workspace
         run: |
           chmod +x ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh
-          branch=$( ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.head_ref }}" "${{ inputs.target_branch }}" )
+          branch=$( ../ci-core/.github/workflows/scripts/get_opencga_enterprise_branch.sh "${{ steps.pom.outputs.artifactId }}" "${{ inputs.target_branch }}" "${{ inputs.head_ref }}" )
           echo "branch=$branch" | tee -a $GITHUB_STEP_SUMMARY
           echo "branch=$branch" >> $GITHUB_OUTPUT
 
