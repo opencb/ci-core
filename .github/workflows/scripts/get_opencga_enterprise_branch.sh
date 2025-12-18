@@ -18,7 +18,13 @@ set -euo pipefail
 project="$1"
 base_ref="$2"
 head_ref="$3"
-
+# Check that ZETTA_REPO_ACCESS_TOKEN is set
+if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
+  echo "ZETTA_REPO_ACCESS_TOKEN should be set to access private repositories" >&2
+  exit 1
+else
+  echo "ZETTA_REPO_ACCESS_TOKEN is ok (defined)" >&2
+fi
 # Helper: check if a branch exists in the remote opencga-enterprise repo
 branch_exists() {
   local branch="$1"
