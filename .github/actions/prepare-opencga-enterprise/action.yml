@@ -52,13 +52,13 @@ runs:
       name: Resolve OpenCGA branch or tag from opencga.version and branch
       shell: bash
       run: |
-        if [ ! -f "./.github/workflows/scripts/opencga_branch.sh" ]; then
-          echo "ERROR: .github/workflows/scripts/opencga_branch.sh not found" >&2
+        if [ ! -f "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/opencga_branch.sh" ]; then
+          echo "ERROR: ci-core/.github/workflows/scripts/opencga_branch.sh not found" >&2
           exit 1
         fi
-        chmod +x ./.github/workflows/scripts/opencga_branch.sh
+        chmod +x "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/opencga_branch.sh"
         branch=$(
-          ./.github/workflows/scripts/opencga_branch.sh \
+          "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/opencga_branch.sh" \
             "${{ steps.project_version.outputs.is_release }}"
         )
         echo "opencga_branch=$branch" >> "$GITHUB_OUTPUT"
@@ -67,7 +67,7 @@ runs:
       with:
         repository: opencb/opencga
         ref: ${{ steps.opencga_branch.outputs.opencga_branch }}
-        path: opencga-home
+        path: workspace/opencga
         fetch-depth: 10
     - id: dependencies_sha
       name: Compute dependencies SHA for OpenCGA/java-common-libs/biodata
@@ -75,14 +75,14 @@ runs:
       run: |
         base_sha="${GITHUB_SHA}"
         if [[ "${{ inputs.clone_dependencies }}" == "true" && "${{ steps.project_version.outputs.is_release }}" == "false" ]]; then
-          if [ -f "./.github/workflows/scripts/get_same_branch.sh" ]; then
+          if [ -f "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/get_same_branch.sh" ]; then
             echo "::group::Clone java-common-libs and biodata and compute dependencies SHA"
-            chmod +x ./.github/workflows/scripts/get_same_branch.sh
+            chmod +x "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/get_same_branch.sh"
 
             export DEPENDENCIES_SHA="$base_sha"
-            export WORKSPACE="${WORKSPACE:-/home/runner/work}"
+            export WORKSPACE="$GITHUB_WORKSPACE/workspace"
 
-            ./.github/workflows/scripts/get_same_branch.sh "${{ inputs.enterprise_ref }}"
+            "$GITHUB_WORKSPACE/ci-core/.github/workflows/scripts/get_same_branch.sh" "${{ inputs.enterprise_ref }}"
             echo "::endgroup::"
             exit 0
           else
