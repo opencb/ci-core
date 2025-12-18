@@ -68,8 +68,8 @@ if [[ "$base_ref" =~ ^release-([0-9]+)\. ]]; then
   fi
   # Try to match release-x.x.x, fallback to release-x.x
   branch_pattern="release-${new_major}."
-  # Find the latest matching branch in opencga-enterprise
-  branch=$(git ls-remote --heads https://github.com/zetta-genomics/opencga-enterprise.git | grep "refs/heads/${branch_pattern}" | awk -F'refs/heads/' '{print $2}' | sort -Vr | head -n1)
+  # Find the latest matching branch in opencga-enterprise (usando el token)
+  branch=$(git ls-remote --heads "https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git" | grep "refs/heads/${branch_pattern}" | awk -F'refs/heads/' '{print $2}' | sort -Vr | head -n1)
   if [[ -n "$branch" ]]; then
     echo "$branch"
     exit 0
@@ -82,4 +82,3 @@ fi
 # 4. Fallback: fail with clear error
 echo "ERROR: Could not resolve opencga-enterprise branch for project '$project' (base_ref: $base_ref, head_ref: $head_ref)" >&2
 exit 1
-
