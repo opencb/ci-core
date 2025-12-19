@@ -18,17 +18,17 @@ set -euo pipefail
 project="$1"
 base_ref="$2"
 head_ref="$3"
+REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
 
-# 1. If the branch begins with 'TASK' and exists in the opencga-enterprise repository, I return it
+# 1. If the branch begins with 'TASK' and exists in the opencga-enterprise repository, return it
 if [[ $head_ref == TASK* ]]; then
-    REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
   if [ "$(git ls-remote "$REPO_URI" "$head_ref" )" ] ; then
     echo "$head_ref";
-    return 0;
+    exit 0
   fi
 fi
 
-# 2. develop branch logic: always map to develop
+# 2. If the base_ref is 'develop', always map to develop
 if [[ "$base_ref" == "develop" ]]; then
   echo "develop"
   exit 0
@@ -60,15 +60,15 @@ if [[ "$base_ref" =~ ^release-([0-9]+)\. ]]; then
     echo "ERROR: Computed release branch version < 1 for $project (base_ref: $base_ref, offset: $offset)" >&2
     exit 1
   fi
-  # Try to match release-x.x.x, fallback to release-x.x
-  branch_pattern="release-${new_major}."
-  # Find the latest matching branch in opencga-enterprise (usando el token)
-  branch=$(git ls-remote --heads "https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git" | grep "refs/heads/${branch_pattern}" | awk -F'refs/heads/' '{print $2}' | sort -Vr | head -n1)
-  if [[ -n "$branch" ]]; then
-    echo "$branch"
+  # Extract the rest of the version (minor and patch) from base_ref
+  rest_version=$(echo "$base_ref" | sed -E "s/^release-[0-9]+(\..*)/\1/")
+  target_branch="release-${new_major}${rest_version}"
+  # Check if the exact branch exists
+  if [ "$(git ls-remote --heads \"$REPO_URI\" $target_branch)" ]; then
+    echo "$target_branch"
     exit 0
   else
-    echo "ERROR: No matching release branch found in opencga-enterprise for $project (pattern: $branch_pattern)" >&2
+    echo "ERROR: No matching release branch '$target_branch' found in opencga-enterprise for $project (base_ref: $base_ref, offset: $offset)" >&2
     exit 1
   fi
 fi
