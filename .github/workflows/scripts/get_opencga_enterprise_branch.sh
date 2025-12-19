@@ -18,51 +18,18 @@ set -euo pipefail
 project="$1"
 base_ref="$2"
 head_ref="$3"
-# Check that ZETTA_REPO_ACCESS_TOKEN is set
-if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
-  echo "ZETTA_REPO_ACCESS_TOKEN should be set to access private repositories" >&2
-  exit 1
-else
-  echo "ZETTA_REPO_ACCESS_TOKEN is ok (defined)" >&2
-fi
 
-# Configura estos valores:
-REPO="zetta-genomics/opencga-enterprise"
-BRANCH="TASK-8067"  # O cualquier rama que exista
-TOKEN="${ZETTA_REPO_ACCESS_TOKEN}"
-
-if [ -z "$TOKEN" ]; then
-  echo "ERROR: ZETTA_REPO_ACCESS_TOKEN está vacío"  >&2
-  exit 1
-fi
-
-echo "Probando acceso a https://github.com/$REPO con el token..."  >&2
-
-# Prueba acceso a la rama
-git ls-remote --heads "https://$TOKEN@github.com/$REPO.git" "$BRANCH"
-RESULT=$?
-
-if [ $RESULT -eq 0 ]; then
-  echo "ÉXITO: El token tiene acceso de lectura al repositorio y puede ver la rama '$BRANCH'." >&2
-else
-  echo "FALLO: El token NO tiene acceso al repositorio o la rama no existe." >&2
-  echo "Verifica que el token tenga permisos de lectura y acceso al repo." >&2
-fi
-
-# Helper: check if a branch exists in the remote opencga-enterprise repo
-branch_exists() {
-  local branch="$1"
-  REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
-  echo "DEBUG: Probing $REPO_URI for branch $branch" >&2
-  git ls-remote --heads "$REPO_URI" "$branch" >&2
-  git ls-remote --heads "$REPO_URI" "$branch" | grep -q refs/heads
-}
-
-# 1. TASK-* branch logic: if head_ref starts with TASK- and exists in opencga-enterprise, use it
-if [[ "$head_ref" =~ ^TASK- ]]; then
-  if branch_exists "$head_ref"; then
-    echo "$head_ref"
-    exit 0
+# 1. If the branch begins with 'TASK' and exists in the opencga-enterprise repository, I return it
+if [[ $head_ref == TASK* ]]; then
+  REPO_URI=
+  if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
+    REPO_URI="git@github.com:zetta-genomics/opencga-enterprise.git"
+  else
+    REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
+  fi
+  if [ "$(git ls-remote "$REPO_URI" "$head_ref" )" ] ; then
+    echo "$head_ref";
+    return 0;
   fi
 fi
 
