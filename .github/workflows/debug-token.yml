@@ -52,7 +52,8 @@ jobs:
           echo "__CI CORE Xetabase ref:__ \"${xetabase_branch}\"" | tee -a ${GITHUB_STEP_SUMMARY}
           REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
           echo "$(git ls-remote $REPO_URI TASK-8067)"
-          
+        env:
+          ZETTA_REPO_ACCESS_TOKEN: ${{ env.ZETTA_REPO_ACCESS_TOKEN }}
 
       - name: Clone OpenCGA Enterprise branch '${{ inputs.branch }}'
         uses: actions/checkout@v4
