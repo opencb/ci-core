@@ -22,7 +22,7 @@ REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-ent
 
 # 1. If the branch begins with 'TASK' and exists in the opencga-enterprise repository, return it
 if [[ $head_ref == TASK* ]]; then
-  if [ "$(git ls-remote "$REPO_URI" "$head_ref" )" ] ; then
+  if [ "$(git ls-remote "$REPO_URI" "$head_ref")" ] ; then
     echo "$head_ref";
     exit 0
   fi
@@ -63,8 +63,8 @@ if [[ "$base_ref" =~ ^release-([0-9]+)\. ]]; then
   # Extract the rest of the version (minor and patch) from base_ref
   rest_version=$(echo "$base_ref" | sed -E "s/^release-[0-9]+(\..*)/\1/")
   target_branch="release-${new_major}${rest_version}"
-  # Check if the exact branch exists
-  if [ "$(git ls-remote --heads \"$REPO_URI\" $target_branch)" ]; then
+  # Check if the exact branch exists (fix: do not escape quotes)
+  if [ "$(git ls-remote --heads "$REPO_URI" "$target_branch")" ]; then
     echo "$target_branch"
     exit 0
   else
