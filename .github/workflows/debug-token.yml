@@ -1,0 +1,55 @@
+name: Debug ZETTA_REPO_ACCESS_TOKEN and Permissions
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug-token-and-permissions:
+    runs-on: ubuntu-latest
+    env:
+      ZETTA_REPO_ACCESS_TOKEN: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
+    steps:
+      - name: Show runner and workflow context
+        run: |
+          echo "Runner: $(uname -a)"
+          echo "GitHub Actor: $GITHUB_ACTOR"
+          echo "Workflow: $GITHUB_WORKFLOW"
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Job: $GITHUB_JOB"
+          echo "Workspace: $GITHUB_WORKSPACE"
+          echo "Home: $HOME"
+          echo "Shell: $SHELL"
+          echo "GitHub Ref: $GITHUB_REF"
+          echo "GitHub SHA: $GITHUB_SHA"
+          echo "GitHub Run ID: $GITHUB_RUN_ID"
+          echo "GitHub Run Number: $GITHUB_RUN_NUMBER"
+
+      - name: Show GitHub Actions permissions
+        run: |
+          echo "Permissions JSON:"
+          cat $GITHUB_EVENT_PATH | jq '.workflow_run?.permissions // .permissions // "No permissions found"'
+
+      - name: Check ZETTA_REPO_ACCESS_TOKEN presence and length
+        run: |
+          if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
+            echo "ZETTA_REPO_ACCESS_TOKEN is NOT set"
+            exit 1
+          else
+            echo "ZETTA_REPO_ACCESS_TOKEN is set"
+            echo "Length: ${#ZETTA_REPO_ACCESS_TOKEN}"
+            echo "First 4 chars: ${ZETTA_REPO_ACCESS_TOKEN:0:4}"
+          fi
+
+      - name: Try to clone the private repo with token
+        run: |
+          set -x
+          git clone https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git || true
+
+      - name: Show authenticated user (if possible)
+        run: |
+          curl -H "Authorization: token $ZETTA_REPO_ACCESS_TOKEN" https://api.github.com/user
+
+      - name: Show environment variables (filtered)
+        run: |
+          env | grep -E 'GITHUB|ZETTA|RUNNER|CI'
