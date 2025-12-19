@@ -22,7 +22,7 @@ REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-ent
 
 # 1. If the branch begins with 'TASK' and exists in the opencga-enterprise repository, return it
 if [[ $head_ref == TASK* ]]; then
-  if [ "$(git ls-remote "$REPO_URI" "$head_ref")" ] ; then
+  if [ "$(git ls-remote $REPO_URI $head_ref)" ] ; then
     echo "$head_ref";
     exit 0
   fi
@@ -76,3 +76,4 @@ fi
 # 4. Fallback: fail with clear error
 echo "ERROR: Could not resolve opencga-enterprise branch for project '$project' (base_ref: $base_ref, head_ref: $head_ref)" >&2
 exit 1
+
