@@ -21,12 +21,7 @@ head_ref="$3"
 
 # 1. If the branch begins with 'TASK' and exists in the opencga-enterprise repository, I return it
 if [[ $head_ref == TASK* ]]; then
-  REPO_URI=
-  if [ -z "$ZETTA_REPO_ACCESS_TOKEN" ]; then
-    REPO_URI="git@github.com:zetta-genomics/opencga-enterprise.git"
-  else
     REPO_URI="https://$ZETTA_REPO_ACCESS_TOKEN@github.com/zetta-genomics/opencga-enterprise.git"
-  fi
   if [ "$(git ls-remote "$REPO_URI" "$head_ref" )" ] ; then
     echo "$head_ref";
     return 0;
