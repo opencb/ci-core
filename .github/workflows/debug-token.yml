@@ -5,7 +5,7 @@ on:
 
 jobs:
   debug-token-and-permissions:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.UBUNTU_VERSION }}
     env:
       ZETTA_REPO_ACCESS_TOKEN: ${{ secrets.ZETTA_REPO_ACCESS_TOKEN }}
     steps:
