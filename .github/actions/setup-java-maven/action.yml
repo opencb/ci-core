@@ -66,6 +66,8 @@ runs:
         ref: main
         path: ci-core
         fetch-depth: '1'
+        ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
+        persist-credentials: false
     - name: Set up JDK
       if: ${{ inputs.deploy_maven != 'true' }}
       uses: actions/setup-java@v4
@@ -84,6 +86,8 @@ runs:
         server-password: ${{ inputs.server-password }}
         gpg-private-key: ${{ inputs.gpg-private-key }}
         gpg-passphrase: ${{ inputs.gpg-passphrase }}
+        ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
+        persist-credentials: false
     - name: Clone dependencies and compute dependencies_sha
       id: clone_dependencies
       if: ${{ inputs.dependency_repos != '' }}

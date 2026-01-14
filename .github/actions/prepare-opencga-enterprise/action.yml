@@ -35,6 +35,8 @@ runs:
         path: workspace/opencga-enterprise
         token: ${{ env.ZETTA_REPO_ACCESS_TOKEN }}
         fetch-depth: 10
+        ## This is important to avoid the error in next steps: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
+        persist-credentials: false
     - id: project_version
       name: Read project.version and determine release flag
       shell: bash
@@ -69,6 +71,8 @@ runs:
         ref: ${{ steps.opencga_branch.outputs.opencga_branch }}
         path: workspace/opencga
         fetch-depth: 10
+        ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
+        persist-credentials: false
     - id: dependencies_sha
       name: Compute dependencies SHA for OpenCGA/java-common-libs/biodata
       shell: bash

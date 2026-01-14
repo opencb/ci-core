@@ -36,6 +36,9 @@ on:
         description: "If true, deploy to Maven repository after building"
         required: false
         default: false
+      ref:
+        type: string
+        required: false
     secrets:
       MAVEN_GPG_PASSPHRASE:
         required: false
@@ -53,12 +56,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        # This step checks out the current repository source code
+      # Checkout the repository using the default branch if 'ref' is not provided
+      - name: Checkout repository (default branch)
+        if: ${{ !inputs.ref || inputs.ref == '' }}
         uses: actions/checkout@v4
-
+      # Checkout the repository using a specific ref if 'ref' is provided
+      - name: Checkout repository (custom ref)
+        if: ${{ inputs.ref && inputs.ref != '' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      # Set up Java, dependencies, and Maven cache. This step also prepares the Hadoop environment and Maven deploy if requested.
       - name: Setup Java, dependencies and Maven cache
-        # Este paso ahora configura Java para build o deploy según inputs.deploy_maven
         id: setup_java_maven
         uses: opencb/ci-core/.github/actions/setup-java-maven@main
         with:
@@ -67,17 +76,19 @@ jobs:
           dependency_repos: ${{ inputs.dependency_repos }}
           needs_hadoop_preparation: ${{ inputs.needs_hadoop_preparation }}
           deploy_maven: ${{ inputs.deploy_maven }}
-          server-username: MAVEN_NEXUS_USER                       # env variable for username in deploy
-          server-password: MAVEN_NEXUS_PASSWORD                   # env variable for token in deploy
+          server-username: MAVEN_NEXUS_USER                       # Environment variable for username in deploy
+          server-password: MAVEN_NEXUS_PASSWORD                   # Environment variable for token in deploy
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}   # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
         env:
           THIRDPARTY_READ_TOKEN: ${{ secrets.THIRDPARTY_READ_TOKEN }}
 
+      # Build the Maven project without running tests if not deploying to Maven
       - name: Maven Build (skip tests)
         if: ${{ !inputs.deploy_maven }}
         run: mvn -T 2 clean install -DskipTests ${{ inputs.maven_opts }} --no-transfer-progress
-      - name: Maven Deploy (skip tests, deploy to Maven Central y GitHub Packages)
+      # Deploy the Maven project to Maven Central and GitHub Packages if requested
+      - name: Maven Deploy (skip tests, deploy to Maven Central and GitHub Packages)
         if: ${{ inputs.deploy_maven }}
         run: mvn -T 2 clean deploy -DskipTests -Pdeploy-maven,deploy-github ${{ inputs.maven_opts }} --no-transfer-progress
         env:
@@ -85,22 +96,21 @@ jobs:
           MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_PASSWORD_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Upload build artifacts if requested by the caller
       - name: Upload build artifacts
-        # This step uploads the build artifacts if requested by the caller.
         if: ${{ inputs.upload_artifact == true }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.build_folder }}
           path: build
 
+      # Extract the Maven project version and expose it as an output
       - name: Get project version
         id: get_project_version
-        # This step extracts the Maven project version and exposes it as an output.
         run: |
           echo "version=$(mvn help:evaluate -q -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
+      # Write a summary into the GitHub job summary for easy inspection
       - name: Build summary
-        # This step writes a small summary into the GitHub job summary, so it is
-        # easy to inspect which dependencies_sha and cache key were used.
         shell: bash
         run: |
           {

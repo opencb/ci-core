@@ -1,6 +1,7 @@
 # .github/workflows/pull-request-approve.yml
 # Workflow to be triggered on PR approval, receives target_branch as input, checks out the repo,
 # computes the correct opencga-enterprise branch, and calls test-xetabase with the calculated branch and PR head as task.
+# Also includes steps to approve and merge the pull request automatically.
 
 name: Xetabase PR Approve Entrypoint
 
@@ -22,6 +23,8 @@ on:
         required: false
       KEEPER_SM_GH_OPENCB:
         required: false
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   pull-request-approve:
@@ -29,6 +32,7 @@ jobs:
     outputs:
       branch: ${{ steps.compute_branch.outputs.branch }}
     steps:
+      # Check out the ci-core repository (main branch)
       - name: Checkout ci-core (main)
         uses: actions/checkout@v4
         with:
@@ -36,6 +40,7 @@ jobs:
           path: ci-core
           ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
           persist-credentials: false
+      # Check out the repository where the pull request is made
       - name: Checkout triggering repository
         uses: actions/checkout@v4
         with:
@@ -43,6 +48,7 @@ jobs:
           path: workspace
           ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
           persist-credentials: false
+      # Parse the pom.xml file to get the project artifactId
       - name: Parse pom.xml to get project artifactId
         id: pom
         shell: bash
@@ -50,6 +56,7 @@ jobs:
         run: |
           artifactId=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.6.0:exec)
           echo "artifactId=$artifactId" >> "$GITHUB_OUTPUT"
+      # Compute the correct opencga-enterprise branch
       - name: Compute opencga-enterprise branch
         id: compute_branch
         shell: bash
@@ -70,3 +77,20 @@ jobs:
       branch: ${{ needs.pull-request-approve.outputs.branch }}
       task: ${{ inputs.head_ref }}
     secrets: inherit
+
+  approve-and-merge:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Approve the pull request
+      - name: Approve PR
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # Merge the pull request
+      - name: Merge PR
+        uses: pascalgn/automerge-action@v0.15.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

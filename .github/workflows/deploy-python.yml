@@ -1,0 +1,34 @@
+name: Reusable workflow to release in PyPI
+
+# Workflow to deploy a Python package to PyPI
+# Triggered manually or by other workflows
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+jobs:
+  deploy-python:
+    runs-on: ubuntu-latest
+    steps:
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      # Install dependencies
+      - name: Install dependencies
+        run: pip install setuptools wheel twine
+      # Build the Python package
+      - name: Build package
+        run: python setup.py sdist bdist_wheel
+      # Publish the package to PyPI
+      - name: Publish package
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: twine upload dist/*

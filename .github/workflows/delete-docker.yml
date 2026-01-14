@@ -1,0 +1,31 @@
+name: Delete docker workflow from DockerHub
+
+# Workflow to delete Docker images from DockerHub
+# Triggered manually or by other workflows
+on:
+  workflow_dispatch:
+    inputs:
+      org:
+        type: string
+        required: true
+      image:
+        type: string
+        required: true
+      tag:
+        type: string
+        required: true
+
+jobs:
+  delete-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      # Log in to DockerHub using provided secrets
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          logout: true
+      # Delete the Docker image from DockerHub
+      - name: Delete Docker image
+        run: docker rmi ${{ inputs.org }}/${{ inputs.image }}:${{ inputs.tag }}

@@ -1,16 +1,30 @@
 name: TEST Xetabase and publish report workflow
 
+# Workflow to run Xetabase-specific tests
+# Triggered on push and pull request events
 on:
-  workflow_call:
-    inputs:
-      task:
-        type: string
-        required: true
-      branch:
-        type: string
-        required: true
+  push:
+  pull_request:
 
 jobs:
+  test-xetabase:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      # Install dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      # Run Xetabase tests
+      - name: Run Xetabase tests
+        run: pytest tests/xetabase
+
   test:
     name: Execute JUnit and Jacoco tests
     runs-on: ${{ vars.UBUNTU_VERSION }}
