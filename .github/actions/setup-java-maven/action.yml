@@ -65,7 +65,7 @@ runs:
         repository: opencb/ci-core
         ref: main
         path: ci-core
-        fetch-depth: '1'
+        fetch-depth: '0'
         ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
         persist-credentials: false
     - name: Set up JDK
