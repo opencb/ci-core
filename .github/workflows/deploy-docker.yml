@@ -20,10 +20,6 @@ on:
       org:
         type: string
         required: true
-      ubuntu_version:
-        type: string
-        required: false
-        default: "ubuntu-22.04"
     secrets:
       DOCKER_HUB_USER:
         required: false
@@ -36,7 +32,7 @@ on:
 jobs:
   deploy-docker-hub:
     name: Push Docker image
-    runs-on: ${{ inputs.ubuntu_version }}
+    runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
       # Optionally checkout a specific repository and branch if provided
       - name: "Checkout optional repo"
