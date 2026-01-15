@@ -34,7 +34,8 @@ runs:
         ref: ${{ inputs.enterprise_ref }}
         path: workspace/opencga-enterprise
         token: ${{ env.ZETTA_REPO_ACCESS_TOKEN }}
-        fetch-depth: 10
+        fetch-depth: 0
+        fetch-tags: true
         ## This is important to avoid the error in next steps: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
         persist-credentials: false
     - id: project_version
@@ -70,7 +71,8 @@ runs:
         repository: opencb/opencga
         ref: ${{ steps.opencga_branch.outputs.opencga_branch }}
         path: workspace/opencga
-        fetch-depth: 10
+        fetch-depth: 0
+        fetch-tags: true
         ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
         persist-credentials: false
     - id: dependencies_sha
