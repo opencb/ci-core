@@ -60,12 +60,17 @@ jobs:
       - name: Checkout repository (default branch)
         if: ${{ !inputs.ref || inputs.ref == '' }}
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       # Checkout the repository using a specific ref if 'ref' is provided
       - name: Checkout repository (custom ref)
         if: ${{ inputs.ref && inputs.ref != '' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
+          fetch-depth: 0
+          fetch-tags: true
       # Set up Java, dependencies, and Maven cache. This step also prepares the Hadoop environment and Maven deploy if requested.
       - name: Setup Java, dependencies and Maven cache
         id: setup_java_maven

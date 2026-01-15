@@ -13,6 +13,9 @@ jobs:
       # Check out the repository
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       # Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,12 +36,16 @@ jobs:
       - name: Checkout ci-core (main)
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
+          fetch-tags: true
           repository: opencb/ci-core
           path: ci-core
       # Checkout el repo que dispara el workflow en workspace/
       - name: Checkout triggering repo
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
+          fetch-tags: true
           path: workspace
       - name: Retrieve secrets from Keeper
         id: ksecrets
