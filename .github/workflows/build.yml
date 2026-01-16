@@ -54,6 +54,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_project_version.outputs.version }}
 
     steps:
       # Checkout the repository using the default branch if 'ref' is not provided
